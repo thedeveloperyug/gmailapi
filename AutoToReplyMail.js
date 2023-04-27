@@ -4,11 +4,11 @@ const gmail = google.gmail('v1');
 // require('dotenv').config();
 
 
-const GMAIL_ID = 'thedeveloperyug@gmail.com';
-const CLIENT_ID = '1021823119827-015fqfvq8ii39apscsfmqe9am7l056v5.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
-const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
-const REFRESH_TOKEN = '1//040QTxz2eYRnRCgYIARAAGAQSNwF-L9IrzGszr8kT2F5dWBRRozbVk7dYb8xlLiWEMXQiO7StRZs97KiHdxBXTwlJ7-N8kswb8KA';
+const GMAIL_ID = 'YOUR GMAIL_ID';
+const CLIENT_ID = 'YOUR CLIENT_ID';
+const CLIENT_SECRET = 'YOUR CLIENT_SECRET';
+const REDIRECT_URI = 'YOUR REDIRECT_URI';
+const REFRESH_TOKEN = 'REFRESH_TOKEN';
 
 const oAuth2Client = new google.auth.OAuth2(
   CLIENT_ID,
