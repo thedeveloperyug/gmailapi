@@ -41,17 +41,17 @@ async function checkForNewEmails() {
       auth: oAuth2Client
     });
 
-
     const res = await gmail.users.messages.list({
       userId: 'me',
-      q: 'is:unread' // Only get unread messages
+      q: 'is:unread',
+      maxResults: 1, // Only get unread messages
     });
     const messages = res.data.messages || [];
     console.log(messages)
     for (const message of messages) {
       const res = await gmail.users.threads.get({
         userId: 'me',
-        id: message.threadId
+        id: message.threadId,
       });
       const thread = res.data;
       const isReply = thread.messages.some(
@@ -62,27 +62,66 @@ async function checkForNewEmails() {
           from: GMAIL_ID,
           to: thread.messages[0].payload.headers.find(header => header.name === 'From').value,
           subject: 'Thanks for your email',
-          text: 'Thanks for your email',
+          text: 'We will contact you soon...',
         };
         const result = await transporter.sendMail(mailOptions);
         console.log(`Email sent to ${mailOptions.to}`);
-        console.log(messages[0].id[0])
-       
+        console.log(message.threadId)
+
         // Function to add a Label to the email and move the email to the label
-        // console.log(result)
-        await gmail.users.messages.modify({
-          auth: oAuth2Client,
+        // await gmail.users.messages.list({
+        //   userId: 'me',
+        //   maxResults: 1,
+        // });
+        const messageId = res.data.messages[0].id;
+        console.log(`Message ID: ${messageId}`);
+        const labelName = "Replied";
+        // Get the latest message from the inbox
+        const response = await gmail.users.messages.list({
           userId: 'me',
-          id:messages[0].id[0],
+          maxResults: 1,
+          q: 'in:inbox', // Only get messages from the inbox
+        });
+
+
+        // Check if the label already exists
+        const labelsResponse = await gmail.users.labels.list({ userId: "me" });
+        const labels = labelsResponse.data.labels;
+        let labelId = null;
+        for (let i = 0; i < labels.length; i++) {
+          if (labels[i].name === labelName) {
+            labelId = labels[i].id;
+            break;
+          }
+        }
+
+        // If the label doesn't exist, create it
+        if (!labelId) {
+          const createLabelResponse = await gmail.users.labels.create({
+            userId: "me",
+            requestBody: {
+              name: labelName,
+              labelListVisibility: "labelShow",
+              messageListVisibility: "show",
+            },
+          });
+          labelId = createLabelResponse.data.id;
+        }
+
+        // Apply the label to the message
+        await gmail.users.messages.modify({
+          userId: "me",
+          id: messageId,
           requestBody: {
-            addLabelIds:['Labels'],
-            // removeLabelIds: ['INBOX'],
+            addLabelIds: [labelId],
+            removeLabelIds: ['INBOX', 'UNREAD'],
           },
         });
-        console.log(`Email moved to Label_1`);
+
+        console.log(`Email moved to replied`);
+
       }
     }
-    const result = await transporter.sendReplyToEmail(mailOptions);
 
   } catch (error) {
     console.log(`Error: ${error}`);
