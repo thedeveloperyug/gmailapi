@@ -129,4 +129,4 @@ async function checkForNewEmails() {
 }
 
 checkForNewEmails().then((result) => console.log('Email sent...', result)).catch((error) => console.log(error.message));
-setInterval(checkForNewEmails, Math.floor(Math.random() * (120000 - 45000 + 1) + 4500));
+setInterval(checkForNewEmails, Math.floor(Math.random() * (120000 - 45000 + 1) + 45000));
